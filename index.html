@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AC1DST4R</title>
+
+    <meta
+        name="description"
+        content="Father, forgive me of my sins. For I am not clean."
+    >
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            width: 100%;
+            min-height: 100%;
+            background: #020202;
+            color: #d8d8d8;
+            font-family: Georgia, "Times New Roman", serif;
+        }
+
+        body {
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .noise {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0.035;
+            z-index: 10;
+            background-image:
+                repeating-radial-gradient(
+                    circle at 0 0,
+                    transparent 0,
+                    rgba(255,255,255,.5) 1px,
+                    transparent 2px
+                );
+            background-size: 4px 4px;
+        }
+
+        .vignette {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9;
+            background:
+                radial-gradient(
+                    ellipse at center,
+                    transparent 30%,
+                    rgba(0,0,0,.45) 70%,
+                    #000 100%
+                );
+        }
+
+        .content {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .text {
+            width: min(720px, 100%);
+            text-align: center;
+            animation: breathe 8s ease-in-out infinite;
+        }
+
+        .main {
+            font-size: clamp(1.5rem, 4vw, 2.8rem);
+            line-height: 1.5;
+            font-weight: 400;
+            letter-spacing: 0.02em;
+            transition: all .2s ease;
+        }
+
+        .clean {
+            color: #6f0000;
+            text-shadow:
+                0 0 12px rgba(110, 0, 0, .35);
+        }
+
+        .secondary {
+            margin-top: 75px;
+            font-size: clamp(1rem, 2vw, 1.35rem);
+            line-height: 2;
+            color: #777;
+            opacity: 0;
+            animation: appear 2s ease forwards;
+            animation-delay: 3s;
+            transition: all .15s ease;
+        }
+
+        .secondary span {
+            display: block;
+        }
+
+        .secondary span:nth-child(2) {
+            margin-top: 8px;
+            color: #555;
+        }
+
+        .secondary span:nth-child(3) {
+            margin-top: 8px;
+            color: #3d3d3d;
+        }
+
+        .corrupted {
+            font-family: "Courier New", monospace !important;
+            letter-spacing: .12em !important;
+            text-transform: uppercase;
+            color: #5d0000 !important;
+            text-shadow:
+                0 0 5px rgba(100, 0, 0, .5);
+        }
+
+        .broken {
+            text-align: left !important;
+            transform: translateX(
+                calc((var(--offset) - .5) * 100px)
+            );
+            line-height: 1.1 !important;
+        }
+
+        .scrambled {
+            opacity: .6 !important;
+            filter: blur(.3px);
+        }
+
+        .signature {
+            position: fixed;
+            bottom: 25px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: #202020;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: .65rem;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            z-index: 3;
+        }
+
+        .blood {
+            position: fixed;
+            width: 75px;
+            height: 105px;
+            pointer-events: none;
+            z-index: 8;
+            opacity: 0;
+            transform: scale(.7);
+            filter: blur(.2px);
+        }
+
+        .blood::before {
+            content: "";
+            position: absolute;
+            width: 55px;
+            height: 65px;
+            top: 0;
+            left: 10px;
+            background:
+                radial-gradient(
+                    ellipse at 50% 20%,
+                    rgba(105,0,0,.9) 0%,
+                    rgba(70,0,0,.75) 35%,
+                    rgba(30,0,0,.2) 68%,
+                    transparent 72%
+                );
+            border-radius: 48% 52% 45% 55%;
+        }
+
+        .blood::after {
+            content: "";
+            position: absolute;
+            width: 7px;
+            height: 42px;
+            left: 35px;
+            top: 48px;
+            background: linear-gradient(
+                to bottom,
+                rgba(90,0,0,.85),
+                rgba(45,0,0,.55),
+                transparent
+            );
+            border-radius: 0 0 50% 50%;
+        }
+
+        .blood.show {
+            animation: bloodAppear 1s ease forwards;
+        }
+
+        .flicker {
+            animation: flicker .12s linear;
+        }
+
+        @keyframes bloodAppear {
+            0% {
+                opacity: 0;
+                transform: scale(.7);
+            }
+
+            15% {
+                opacity: .85;
+                transform: scale(1);
+            }
+
+            75% {
+                opacity: .7;
+                transform: scale(1.02);
+            }
+
+            100% {
+                opacity: 0;
+                transform: scale(1.08);
+            }
+        }
+
+        @keyframes breathe {
+            0%,
+            100% {
+                opacity: .9;
+                transform: translateY(0);
+            }
+
+            50% {
+                opacity: 1;
+                transform: translateY(-3px);
+            }
+        }
+
+        @keyframes appear {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes flicker {
+            0% {
+                opacity: 1;
+            }
+
+            25% {
+                opacity: .7;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            75% {
+                opacity: .8;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .content {
+                padding: 24px;
+            }
+
+            .secondary {
+                margin-top: 55px;
+            }
+
+            .signature {
+                bottom: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="noise"></div>
+    <div class="vignette"></div>
+
+    <div class="content" id="page">
+        <div class="text">
+
+            <div class="main" id="mainText">
+                Father, forgive me of my sins.<br>
+                For I am not <span class="clean">clean</span>.
+            </div>
+
+            <div class="secondary" id="secondaryText">
+                <span>It hurts.</span>
+                <span>Please...</span>
+                <span>Stop torturing me like this.</span>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="signature">
+        AC1DST4R
+    </div>
+
+    <div class="blood" id="blood"></div>
+
+    <script>
+        const blood = document.getElementById("blood");
+        const page = document.getElementById("page");
+        const mainText = document.getElementById("mainText");
+        const secondaryText = document.getElementById("secondaryText");
+
+        const originalMain = `
+            Father, forgive me of my sins.<br>
+            For I am not <span class="clean">clean</span>.
+        `;
+
+        const originalSecondary = `
+            <span>It hurts.</span>
+            <span>Please...</span>
+            <span>Stop torturing me like this.</span>
+        `;
+
+        function bloodStain() {
+            blood.classList.remove("show");
+
+            blood.style.left =
+                Math.random() * 88 + 4 + "vw";
+
+            blood.style.top =
+                Math.random() * 78 + 5 + "vh";
+
+            void blood.offsetWidth;
+
+            blood.classList.add("show");
+
+            if (Math.random() < .35) {
+                page.classList.add("flicker");
+
+                setTimeout(() => {
+                    page.classList.remove("flicker");
+                }, 120);
+            }
+        }
+
+        function scheduleBlood() {
+            const delay =
+                Math.random() * 10000 + 5000;
+
+            setTimeout(() => {
+                bloodStain();
+                scheduleBlood();
+            }, delay);
+        }
+
+        function corruptWord(word) {
+            const replacements = {
+                "is": "1s",
+                "I": "1",
+                "i": "1",
+                "e": "3",
+                "E": "3",
+                "a": "4",
+                "A": "4",
+                "s": "5",
+                "S": "5"
+            };
+
+            let result = "";
+
+            for (const char of word) {
+                if (
+                    replacements[char] &&
+                    Math.random() < .22
+                ) {
+                    result += replacements[char];
+                } else {
+                    result += char;
+                }
+            }
+
+            return result;
+        }
+
+        function corruptText(text) {
+            let result = text;
+
+            result = result
+                .split(" ")
+                .map(word => corruptWord(word))
+                .join(" ");
+
+            if (Math.random() < .3) {
+                result = result.replace(
+                    /\s/g,
+                    Math.random() < .5 ? "" : " "
+                );
+            }
+
+            if (Math.random() < .2) {
+                result = result
+                    .split("")
+                    .map(char =>
+                        Math.random() < .08
+                            ? char.toUpperCase()
+                            : char
+                    )
+                    .join("");
+            }
+
+            return result;
+        }
+
+        function corruptMain() {
+            const text =
+                "Father, forgive me of my sins. For I am not clean.";
+
+            let corrupted = corruptText(text);
+
+            mainText.innerHTML = corrupted;
+
+            mainText.classList.add("corrupted");
+
+            if (Math.random() < .5) {
+                mainText.classList.add("broken");
+                mainText.style.setProperty(
+                    "--offset",
+                    Math.random()
+                );
+            }
+
+            setTimeout(() => {
+                mainText.innerHTML = originalMain;
+                mainText.classList.remove(
+                    "corrupted",
+                    "broken"
+                );
+            }, 900 + Math.random() * 1200);
+        }
+
+        function corruptSecondary() {
+            const lines = [
+                "It hurts.",
+                "Please...",
+                "Stop torturing me like this."
+            ];
+
+            const corrupted = lines
+                .map(line => corruptText(line))
+                .join("<br>");
+
+            secondaryText.innerHTML = corrupted;
+
+            secondaryText.classList.add("scrambled");
+
+            if (Math.random() < .5) {
+                secondaryText.classList.add("corrupted");
+            }
+
+            setTimeout(() => {
+                secondaryText.innerHTML = originalSecondary;
+                secondaryText.classList.remove(
+                    "scrambled",
+                    "corrupted"
+                );
+            }, 700 + Math.random() * 1300);
+        }
+
+        function scheduleCorruption() {
+            const delay =
+                Math.random() * 8000 + 4000;
+
+            setTimeout(() => {
+
+                if (Math.random() < .65) {
+                    corruptMain();
+                } else {
+                    corruptSecondary();
+                }
+
+                scheduleCorruption();
+
+            }, delay);
+        }
+
+        scheduleBlood();
+        scheduleCorruption();
+    </script>
+
+</body>
+</html>
